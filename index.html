@@ -361,7 +361,33 @@ const keyOf=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 const fmt=n=>n==null?"–":String(Number(n.toFixed(2))).replace(".",",");
 const colorOf=s=>s<6?"red":(s<8?"orange":"green");
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); }
+let curScreen="splash";
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); curScreen=id; sync(); }
+
+/* ===== Botón "atrás" del móvil: vuelve a la pantalla anterior en vez de cerrar la app ===== */
+let navDepth=0, ignorePop=false;
+const overlayOpen=()=>$("popup").classList.contains("open")||$("info").classList.contains("open");
+function sync(){
+  const need=(curScreen!=="home"&&curScreen!=="splash")||overlayOpen();
+  try{
+    if(need&&navDepth===0){ history.pushState({nav:1},""); navDepth=1; }
+    else if(!need&&navDepth===1){ ignorePop=true; navDepth=0; history.back(); }
+  }catch(e){}
+}
+function goBack(){
+  if($("popup").classList.contains("open")){ $("popup").classList.remove("open"); return; }
+  if($("info").classList.contains("open")){ $("info").classList.remove("open"); return; }
+  switch(curScreen){
+    case "cal": case "qlist": renderHome(); show("home"); break;
+    case "qedit": show("qlist"); break;
+    case "test": if(qi>0){ qi--; renderQ(); } else show("cal"); break;
+    case "end": qi=CUR.length-1; renderQ(); show("test"); break;
+  }
+}
+window.addEventListener("popstate",()=>{
+  if(ignorePop){ ignorePop=false; return; }
+  navDepth=0; goBack(); sync();
+});
 function entries(p){ return Object.entries(data[p]).map(([k,v])=>({k,v})); }
 function weekRange(){
   const t=new Date(); t.setHours(0,0,0,0);
@@ -455,13 +481,13 @@ function openPopup(key){
   const dt=new Date(y,m-1,d);
   $("popdate").textContent=dt.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
   $("popdel").disabled=data[person][key]==null;
-  $("popup").classList.add("open");
+  $("popup").classList.add("open"); sync();
 }
-$("popup").addEventListener("click",e=>{ if(e.target.id==="popup") $("popup").classList.remove("open"); });
-$("popedit").onclick=()=>{ $("popup").classList.remove("open"); startTest(); };
+$("popup").addEventListener("click",e=>{ if(e.target.id==="popup"){ $("popup").classList.remove("open"); sync(); } });
+$("popedit").onclick=()=>{ $("popup").classList.remove("open"); startTest(); sync(); };
 $("popdel").onclick=()=>{
   delete data[person][selDate]; persist();
-  $("popup").classList.remove("open");
+  $("popup").classList.remove("open"); sync();
   const sc=$("calscroll").scrollTop; renderCal(); $("calscroll").scrollTop=sc; updateAvg();
 };
 
@@ -585,9 +611,9 @@ $("qreset").onclick=()=>{
 };
 
 /* ============ INFO ============ */
-$("infobtn").onclick=()=>$("info").classList.add("open");
-$("infoclose").onclick=()=>$("info").classList.remove("open");
-$("info").addEventListener("click",e=>{ if(e.target.id==="info") $("info").classList.remove("open"); });
+$("infobtn").onclick=()=>{ $("info").classList.add("open"); sync(); };
+$("infoclose").onclick=()=>{ $("info").classList.remove("open"); sync(); };
+$("info").addEventListener("click",e=>{ if(e.target.id==="info"){ $("info").classList.remove("open"); sync(); } });
 
 /* ============ INSTALACIÓN ============ */
 if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
