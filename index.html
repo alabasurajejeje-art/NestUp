@@ -229,7 +229,6 @@ button{font-family:inherit;cursor:pointer}
   <div class="topbar"><h2>NestUp</h2><p>Elige un calendario</p></div>
   <div class="list" id="homelist"></div>
   <nav class="bottombar">
-    <button class="bb" id="gear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M3.5 6l1.3 1.3L7 5M3.5 12l1.3 1.3L7 11M3.5 18l1.3 1.3L7 17"/></svg><span>Preguntas</span></button>
     <button class="bb" id="infobtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg><span>Info</span></button>
     <button class="bb" id="avgbtn" aria-label="Mostrar u ocultar medias"><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg><span>Medias</span></button>
     <button class="bb" id="themebtn"><svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg><svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><span class="lab-dark">Oscuro</span><span class="lab-light">Claro</span></button>
@@ -687,7 +686,6 @@ $("endsave").onclick=()=>{
 let qPerson="Laura", qIdx=-1, qMode="daily";
 const DAY_NAMES=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 const curList=()=>(qMode==="daily"?QUESTIONS:WEEKLY)[qPerson];
-$("gear").onclick=()=>{ renderQList(); show("qlist"); };
 $("qback").onclick=()=>{ renderHome(); show("home"); };
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ qPerson=t.dataset.p; renderQList(); });
 document.querySelectorAll(".mtab").forEach(t=>t.onclick=()=>{ qMode=t.dataset.m; renderQList(); });
