@@ -61,8 +61,6 @@ button{font-family:inherit;cursor:pointer}
 .chips{display:flex;gap:6px}
 .chip{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-weight:700;font-size:.82rem}
 .chip.on{background:var(--wk);color:var(--text);border-color:var(--ringc)}
-.legend{padding:6px 16px 0;font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px}
-.legend .sw{width:14px;height:14px;border-radius:5px;background:var(--wk);border:1px solid var(--ringc)}
 .day.weekly{background:var(--wk)}
 .qinfo{padding:0 20px 8px;font-size:.82rem;color:var(--muted);line-height:1.35}
 .qrows{flex:1;overflow-y:auto;padding:4px 16px 10px;display:flex;flex-direction:column;gap:10px}
@@ -102,15 +100,17 @@ button{font-family:inherit;cursor:pointer}
 .back{background:none;border:none;font-size:1.6rem;color:var(--text);padding:6px 10px}
 .calhead h2{margin:0;font-size:1.3rem;font-weight:700}
 .avgbar{display:flex;gap:10px;padding:6px 16px 10px;border-bottom:1px solid var(--line)}
-.avgbar div{flex:1;background:var(--soft);border-radius:14px;padding:8px 10px;text-align:center}
-.avgbar .n{font-size:1.35rem;font-weight:800}
-.avgbar .l{font-size:.75rem;color:var(--muted)}
+.avgbar>div{flex:1;background:var(--soft);border-radius:14px;padding:10px 10px;text-align:center}
+.avgbar .n{font-size:1.35rem;font-weight:800;line-height:1.2}
+.avgbar .l{font-size:.75rem;color:var(--muted);margin-top:3px}
 .dow{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 10px 6px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted);text-align:center}
 #calscroll{flex:1;overflow-y:auto;padding:0 10px 40px;position:relative}
 .month h4{margin:22px 6px 10px;font-size:1.25rem;font-weight:700;text-transform:capitalize}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 4px}
-.day{border:none;background:none;border-radius:14px;color:var(--text);min-height:calc((min(100vw,640px) - 44px)/7 + 24px);
+.day{border:none;background:none;border-radius:14px;color:var(--text);min-height:calc((min(100vw,640px) - 44px)/7 + 48px);
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:5px 2px 4px}
+.day .tm{width:calc(100% - 2px);text-align:center;background:var(--soft);border:1px solid var(--line);color:var(--sub);border-radius:7px;font-size:.68rem;font-weight:600;line-height:1;padding:4px 1px;white-space:nowrap}
+.hideavg .day .tm{display:none}
 .day .dn{font-size:.78rem;font-weight:400;line-height:1.2;color:var(--muted)}
 .day .sc{width:calc(100% - 2px);aspect-ratio:1/1;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:min(1.08rem,4.3vw);letter-spacing:-.3px}
 .day.empty{visibility:hidden}
@@ -268,7 +268,6 @@ button{font-family:inherit;cursor:pointer}
     <div><div class="n" id="avgT">–</div><div class="l">Media total</div></div>
   </div>
   <div class="dow"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-  <div class="legend"><span class="sw"></span>Día del test semanal</div>
   <div id="calscroll"></div>
 </section>
 
@@ -458,6 +457,11 @@ const TIME_OPTS=[{t:"Menos de 15 min",m:8},{t:"15-30 min",m:22},{t:"30-60 min",m
 const TIMEQ={t:true,q:"¿Cuánto tiempo has invertido hoy en tus tareas?",
   d:"Incluye el tiempo de organización, carga mental, hacer listas, anotar en calendario, revisar, micromanaging...",
   a:TIME_OPTS.map(o=>o.t)};
+function fmtTs(m){                       /* corto para el calendario: 30 min · 1h · 1h30 */
+  m=Math.round(m/10)*10;
+  if(m<60) return m+" min";
+  const h=Math.floor(m/60), r=m%60; return r? h+"h"+r : h+"h";
+}
 function fmtT(m){
   if(m==null) return "–";
   m=Math.round(m/10)*10;              /* se redondea a 10 min: 2 h 13 min -> 2 h 10 min */
@@ -587,7 +591,7 @@ function renderCal(){
       const key=y+"-"+pad(m+1)+"-"+pad(d), b=document.createElement("button");
       b.className="day"; b.dataset.key=key;
       const sc_=data[person][key];
-      b.innerHTML='<span class="dn">'+d+'</span>'+(sc_!=null?'<span class="sc '+colorOf(sc_)+'">'+fmt(sc_)+'</span>':'');
+      b.innerHTML='<span class="dn">'+d+'</span>'+(sc_!=null?'<span class="sc '+colorOf(sc_)+'">'+fmt(sc_)+'</span>':'')+(TIME[person][key]!=null?'<span class="tm">'+fmtTs(TIME[person][key])+'</span>':'');
       if(key===today) b.classList.add("istoday");
       if((first+d-1)%7===WDAY[person]) b.classList.add("weekly");
       b.onclick=()=>openPopup(key);
