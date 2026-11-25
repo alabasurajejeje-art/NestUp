@@ -15,9 +15,9 @@
 
 <style>
 :root{
-  color-scheme:light;--text:#333;--muted:#8a8a8a;--line:#e4e4e4;--soft:#f3f3f3;--bg:#fff;--card:#fff;--btn:#555;--btntext:#fff;--sub:#555;--wk:#e3e3e3;--ringc:#bdbdbd;--shade:rgba(0,0,0,.17);--ovl:rgba(0,0,0,.35);
-  --green:rgba(53,181,63,1);--orange:rgba(247,173,25,1);--red:rgba(237,83,83,1);
-  --grad:linear-gradient(45deg,#f0b43c 0%,#b5c93e 30%,#55bb48 60%,#2da84f 100%);
+  color-scheme:light;--text:#333;--muted:#8a8a8a;--line:#e4e4e4;--soft:#f3f3f3;--bg:#fff;--card:#fff;--btn:#555;--btntext:#fff;--sub:#555;--wk:#e3e3e3;--ringc:#bdbdbd;--shade:rgba(0,0,0,.17);--ovl:rgba(0,0,0,.35);--rgo:linear-gradient(45deg,#e8344e,#f77f00,#9fd33c,#0fa968);
+  --green:#0fa968;--orange:#f77f00;--red:#e8344e;
+  --grad:linear-gradient(45deg,#e8344e,#f77f00,#9fd33c,#0fa968);
 }
 :root[data-theme="dark"]{color-scheme:dark;--text:#ececec;--muted:#9a9a9a;--line:#2f2f2f;--soft:#252525;--bg:#121212;--card:#1b1b1b;--btn:#e2e2e2;--btntext:#1a1a1a;--sub:#c4c4c4;--wk:#333;--ringc:#6b6b6b;--shade:rgba(255,255,255,.22);--ovl:rgba(0,0,0,.6)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -44,6 +44,8 @@ button{font-family:inherit;cursor:pointer}
 #info p{margin:14px 0 0;line-height:1.5;font-size:.98rem}
 #info .sub{margin:22px 0 0;font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
 #info .soft{background:var(--soft);border-radius:16px;padding:14px 16px;margin-top:10px;color:var(--sub);font-size:.93rem;line-height:1.5}
+#info .soft ul{margin:0;padding-left:18px}
+#info .soft li{margin:5px 0}
 #info .close{display:block;width:100%;margin-top:22px;padding:14px;border-radius:14px;border:none;background:var(--btn);color:var(--btntext);font-size:1rem;font-weight:800}
 
 /* Editor de preguntas */
@@ -171,12 +173,22 @@ button{font-family:inherit;cursor:pointer}
 .tbox .l{font-size:.78rem;color:var(--muted);margin-top:1px;display:flex;align-items:center;justify-content:center;gap:4px}
 .tick{display:inline-flex;color:var(--green)}
 .tick svg{width:13px;height:13px}
-.cta{background:var(--btn);color:var(--btntext);padding:9px 15px;border-radius:999px;font-size:.85rem;font-weight:800;white-space:nowrap}
+.cta{background:linear-gradient(var(--card),var(--card)) padding-box,var(--rgo) border-box;border:2.5px solid transparent;color:var(--text);padding:6.5px 12.5px;border-radius:999px;font-size:.85rem;font-weight:800;white-space:nowrap}
 .hideavg .avgs{display:none}
 .hideavg .chead{margin-bottom:0}
+.hideavg .tbox .n{display:none}   /* con las notas ocultas, "Hoy" no enseña la nota: solo el ✓ de hecho */
+.hideavg .tbox{padding:14px 20px}
+.hideavg .tbox .l{font-size:.9rem;font-weight:700;color:var(--text);margin-top:0}
 .eye-off{display:none}
 .hideavg .eye-off{display:block}
 .hideavg .eye-on{display:none}
+.iconbtn{margin-left:auto;margin-right:4px;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--ringc);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0;flex:none}
+.iconbtn:active{background:var(--soft)}
+.iconbtn svg{width:22px;height:22px}
+/* Con las notas ocultas: calendario sin medias y con cuadrados neutros (se ve qué días están hechos, sin nota ni color) */
+.hideavg .avgbar{display:none}
+.hideavg .day .sc,.hideavg .day .sc.red,.hideavg .day .sc.orange,.hideavg .day .sc.green{background:linear-gradient(var(--bg),var(--bg)) padding-box,var(--rgo) border-box!important;border:3px solid transparent;font-size:0}
+.hideavg .day .sc::after{content:"✓";font-size:1.2rem;font-weight:800;background:var(--rgo);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* Menú inferior */
 .bottombar{display:flex;border-top:1px solid var(--line);background:var(--card);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
 .bb{flex:1;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;font-size:.72rem;font-weight:700;border-radius:12px}
@@ -250,7 +262,7 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- CALENDARIO -->
 <section id="cal" class="screen">
-  <div class="calhead"><button class="back" id="calback" aria-label="Volver">‹</button><h2 id="caltitle"></h2></div>
+  <div class="calhead"><button class="back" id="calback" aria-label="Volver">‹</button><h2 id="caltitle"></h2><button class="iconbtn" id="avgbtn2" aria-label="Mostrar u ocultar notas"><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg></button></div>
   <div class="avgbar">
     <div><div class="n" id="avgM">–</div><div class="l" id="avgMl">Media mensual</div></div>
     <div><div class="n" id="avgT">–</div><div class="l">Media total</div></div>
@@ -289,6 +301,24 @@ button{font-family:inherit;cursor:pointer}
   <p>La idea es conseguir que la casa esté limpia y recogida con la menor carga mental, optimizando tiempos y procesos.</p>
   <div class="sub">Menú equilibrado</div>
   <div class="soft">Un menú equilibrado consiste en llenar cada plato con un tercio (33 %) de verduras, un tercio de proteínas y un tercio de hidratos integrales (acompañados de aceite de oliva virgen extra, agua y fruta entera), repartiendo las proteínas semanales en 3–4 días de legumbres, 3–4 de pescado, 3–4 de huevos, 2–3 de carne blanca y un máximo de 1–2 de carne roja.</div>
+  <div class="sub">Tareas base Laura</div>
+  <div class="soft"><ul>
+    <li>Baños</li>
+    <li>Lavar, secar y ordenar todo lo que sea de lavar: ropa, toallas, zapatillas, cortinas...</li>
+    <li>Cosas de la casita de Olivia: merienda, babi, babero, ropa de cambio, bibe, pañales y toallitas</li>
+    <li>Fregar</li>
+    <li>Quitar el polvo</li>
+    <li>Recoger y reorganizar</li>
+    <li>Limpiar el coche</li>
+  </ul></div>
+  <div class="sub">Tareas base Pedro</div>
+  <div class="soft"><ul>
+    <li>Comidas: organizar y decidir menú, compra, cocinar y limpieza pre-post-cocinar</li>
+    <li>Aspirador</li>
+    <li>Basura: organizar, separar, reciclar y punto limpio</li>
+    <li>Gallinero</li>
+    <li>Regar plantas</li>
+  </ul></div>
   <button class="close" id="infoclose">Cerrar</button>
 </div></div>
 
@@ -311,13 +341,15 @@ const DEFAULTS = {
      a:["Sí","Casi sí, con alguna excepción","No era suficientemente sana o ha habido algún otro problema"]},
     {q:"¿Se ha recogido la cocina después de comer?",
      a:["Casi inmediatamente","Sí, pero horas después","No, hasta tener que volver a cocinar/usar la cocina. O ni eso, qué horror"]},
-    {q:"¿Ha habido recordatorios, correcciones necesarias, avisos o enfados por parte de tu pareja con respecto a tus responsabilidades?",
-     a:["What? Eso nunca pasa, lo hago todo perfect","Ha habido 2 o menos indicaciones","Ha habido bronca. Sorry"]},
+    {q:"¿Ha faltado algo de comida para alguien?",
+     a:["No","Sí, pero no era un alimento básico","Sí, faltó leche, yogur, fruta, huevos, verdura o pan/cereales"]},
+    {q:"Compra: ¿he tenido que ir a comprar hoy sin que fuera lunes?",
+     a:["No, hoy no ha hecho falta","Sí, pero solo una cosita superrápida","Sí, porque faltaban cosas esenciales"]},
     {q:"¿Ha habido algo de desorden hoy?",
      d:"Todo debe estar en su sitio. El suelo debe estar despejado. Se ha recogido la posible basura, ropa, zapatillas, mochilas, bolsas y se ha dejado ordenado. Si ha quedado algo es porque hay que ocuparse de ello mañana.",
      a:["He revisado y está todo ok","O bien no he revisado o hay cosas no ok","El kaos reina en esta casa"]},
-    {q:"Compra: ¿he tenido que ir a comprar hoy sin que fuera lunes?",
-     a:["No, hoy no ha hecho falta","Sí, pero solo una cosita superrápida","Sí, porque faltaban cosas esenciales"]},
+    {q:"¿Ha habido recordatorios, correcciones necesarias, avisos o enfados por parte de tu pareja con respecto a tus responsabilidades?",
+     a:["What? Eso nunca pasa, lo hago todo perfect","Ha habido 2 o menos indicaciones","Ha habido bronca. Sorry"]},
     {q:"¿Ha hecho Laura parte de tus tareas?",
      a:["No. O estaba justificado","Sí, alguna cosilla","Sí, y ha invertido más de 20 mins"]},
   ],
@@ -349,7 +381,7 @@ const DEFAULTS_W = {
   Pedro: [
     {q:"¿Has tirado la basura esta semana?",
      a:["Sí, con tiempo, antes de que oliese mal. Incluyendo basura normal, plásticos, cartón, compost y vidrio.","La tiré pero ya estaba muy llena, olía mal o no he revisado todos los tipos de basura","No la tiré. Ahí sigue. Tiene moscas y la verdad es que apesta un poco"]},
-    {q:"¿Pasaste el aspirador al menos una vez entre el sábado y el lunes?",
+    {q:"¿Pasaste el aspirador al menos una vez entre el domingo y el martes?",
      a:["Sí, por toda la casa","Sí PERO… olvidé alguna estancia, se quedó sin batería y luego no terminé… etc. O de forma excepcional he considerado que no hacía falta","No lo he hecho. Las pelusas me adoran y yo a ellas"]},
     {q:"¿Has hecho plan de comidas para la semana y revisado la lista de ToDo?",
      a:["Sí a todo. HA","Solo en parte. Olvidé algo","No, voy a improvisar. A lo loko"]},
@@ -384,8 +416,22 @@ try{
       if(s3.weekly&&Array.isArray(s3.weekly[p])&&s3.weekly[p].length) WEEKLY[p]=s3.weekly[p];
       if(s3.wday&&Number.isInteger(s3.wday[p])) WDAY[p]=s3.wday[p];
     });
+    if(!s3.m3){ /* una sola vez: si las listas guardadas solo contienen preguntas originales (sin personalizar), se estrena el orden y los textos nuevos */
+      const known=new Set(["¿Pasaste el aspirador al menos una vez entre el sábado y el lunes?"]);
+      [DEFAULTS,DEFAULTS_W].forEach(D=>PEOPLE.forEach(p=>D[p].forEach(x=>known.add(x.q))));
+      PEOPLE.forEach(p=>{
+        if(QUESTIONS[p].every(x=>known.has(x.q))) QUESTIONS[p]=clone(DEFAULTS[p]);
+        if(WEEKLY[p].every(x=>known.has(x.q))) WEEKLY[p]=clone(DEFAULTS_W[p]);
+      });
+      saveQ();
+    }
     if(!s3.m1){ /* una sola vez: añade '¿Ha hecho tu pareja parte de tus tareas?' si no está */
       PEOPLE.forEach(p=>{ const nq=DEFAULTS[p][DEFAULTS[p].length-1]; if(!QUESTIONS[p].some(x=>x.q===nq.q)) QUESTIONS[p].push(clone(nq)); });
+      saveQ();
+    }
+    if(!s3.m2){ /* una sola vez: añade '¿Ha faltado algo de comida para alguien?' a Pedro si no está */
+      const fq=DEFAULTS.Pedro.find(x=>x.q.indexOf("Ha faltado algo de comida")>=0);
+      if(fq&&!QUESTIONS.Pedro.some(x=>x.q===fq.q)) QUESTIONS.Pedro.push(clone(fq));
       saveQ();
     }
   } else {
@@ -394,7 +440,7 @@ try{
     if(s2&&s2.wday) PEOPLE.forEach(p=>{ if(Number.isInteger(s2.wday[p])) WDAY[p]=s2.wday[p]; });
   }
 }catch(e){}
-function saveQ(){ try{localStorage.setItem(QKEY,JSON.stringify({daily:QUESTIONS,weekly:WEEKLY,wday:WDAY,m1:1}));}catch(e){} }
+function saveQ(){ try{localStorage.setItem(QKEY,JSON.stringify({daily:QUESTIONS,weekly:WEEKLY,wday:WDAY,m1:1,m2:1,m3:1}));}catch(e){} }
 
 /* ============ DATOS ============ */
 const KEY="homechecks_v1";
@@ -726,12 +772,14 @@ $("themebtn").onclick=()=>{
   applyTheme(t); try{localStorage.setItem("nestup_theme",t);}catch(e){}
 };
 
-/* ============ MOSTRAR / OCULTAR MEDIAS ============ */
+/* ============ MOSTRAR / OCULTAR NOTAS (mismo estado en el menú principal y en el calendario) ============ */
 (function(){
   let hide=false; try{ hide=localStorage.getItem("nestup_hideavg")==="1"; }catch(e){}
   const apply=()=>document.documentElement.classList.toggle("hideavg",hide);
   apply();
-  $("avgbtn").onclick=()=>{ hide=!hide; apply(); try{localStorage.setItem("nestup_hideavg",hide?"1":"0");}catch(e){} };
+  const toggle=()=>{ hide=!hide; apply(); try{localStorage.setItem("nestup_hideavg",hide?"1":"0");}catch(e){} };
+  $("avgbtn").onclick=toggle;
+  $("avgbtn2").onclick=toggle;
 })();
 
 /* ============ ARRANQUE ============ */
